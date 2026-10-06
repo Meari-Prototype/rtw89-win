@@ -1,0 +1,75 @@
+; SPDX-License-Identifier: BSD-3-Clause
+; Copyright (c) 2026 Meari
+;
+; rtkbtflt.inf: patch loader for the Bluetooth half of the RTL8852BE (USB\VID_13D3&PID_3572) on the ROCK 5T
+; An extension INF: the device keeps Microsoft's bth.inf (BTHUSB) as its base driver; this package only adds the
+; lower filter rtkbtflt under it (AddFilter, Windows 10 1903 and later), which downloads Realtek's patch
+; (linux-firmware rtl_bt/rtl8852bu_fw.bin and the empty rtl8852bu_config.bin, Realtek licence in the package) before
+; BTHUSB initialises the controller, and again after every D3. Deleting the package (pnputil /delete-driver ...
+; /uninstall) removes the filter and leaves the device on bth.inf alone.
+; DriverVer is filled in by build.ps1.
+;
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = Extension
+ClassGuid   = {e2f84ce7-8efa-411c-aa69-97454ca4cb57}
+ExtensionId = {aba148f8-170a-4194-ab53-42a94db50b00}
+Provider    = %Provider%
+DriverVer   = 01/01/2026,0.0.0.0
+CatalogFile = rtkbtflt.cat
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 13
+
+[SourceDisksNames]
+1 = %DiskName%
+
+[SourceDisksFiles]
+rtkbtflt.sys         = 1
+rtl8852bu_fw.bin     = 1
+rtl8852bu_config.bin = 1
+
+[Manufacturer]
+%Mfg% = Realtek, NTARM64.10.0...26100
+
+[Realtek.NTARM64.10.0...26100]
+%RtkBtFlt.DeviceDesc% = RtkBtFlt_Device, USB\VID_13D3&PID_3572
+
+[RtkBtFlt_Device.NT]
+CopyFiles = RtkBtFlt_CopyFiles
+
+[RtkBtFlt_CopyFiles]
+rtkbtflt.sys
+rtl8852bu_fw.bin
+rtl8852bu_config.bin
+
+[RtkBtFlt_Device.NT.Filters]
+AddFilter = rtkbtflt,, RtkBtFlt_Filter
+
+[RtkBtFlt_Filter]
+FilterPosition = Lower
+
+[RtkBtFlt_Device.NT.Services]
+AddService = rtkbtflt,, RtkBtFlt_Service      ; not the function driver: no SPSVCINST_ASSOCSERVICE
+
+[RtkBtFlt_Service]
+DisplayName    = %RtkBtFlt.SvcDesc%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START (loaded by PnP with the device)
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %13%\rtkbtflt.sys
+LoadOrderGroup = PNP Filter
+AddReg         = RtkBtFlt_Service_AddReg
+
+[RtkBtFlt_Service_AddReg]
+; Parameters\PassThrough: 1 = pass everything through, download nothing (set by hand; kept across upgrades)
+HKR, Parameters, PassThrough, 0x00010003, 0     ; FLG_ADDREG_TYPE_DWORD | FLG_ADDREG_NOCLOBBER
+
+[Strings]
+Provider             = "rtw89win"
+Mfg                  = "Realtek"
+DiskName             = "rtkbtflt"
+RtkBtFlt.DeviceDesc  = "Realtek RTL8852BE Bluetooth patch loader (rtkbtflt)"
+RtkBtFlt.SvcDesc     = "rtkbtflt RTL8852BE Bluetooth patch loader (lower filter)"

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: BSD-3-Clause; Copyright (c) 2026 Meari -->
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|ARM64">
+      <Configuration>Release</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{3C8E2B71-9D45-4F0A-B6E2-8852BE0A7F31}</ProjectGuid>
+    <RootNamespace>rtw89win</RootNamespace>
+    <WindowsTargetPlatformVersion>$(LatestTargetPlatformVersion)</WindowsTargetPlatformVersion>
+    <ProjectName>rtw89win</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
+    <TargetVersion>Windows10</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>KMDF</DriverType>
+    <DriverTargetPlatform>Desktop</DriverTargetPlatform>
+    <KMDF_VERSION_MAJOR>1</KMDF_VERSION_MAJOR>
+    <KMDF_VERSION_MINOR>33</KMDF_VERSION_MINOR>
+    <!-- WiFiCx 1.1 on NetAdapterCx 2.4 (WiFiCx 1.2 only adds fields this driver does not use; NetAdapterCx is set
+         explicitly so a WDK update cannot change its default); the WDK adds their include paths, stub libraries and
+         NET_VERSION_*/WIFI_VERSION_* macros. The class extensions bind at driver load, in both modes. -->
+    <NetAdapterDriver>true</NetAdapterDriver>
+    <NETADAPTER_VERSION_MAJOR>2</NETADAPTER_VERSION_MAJOR>
+    <NETADAPTER_VERSION_MINOR>4</NETADAPTER_VERSION_MINOR>
+    <WifiDriver>true</WifiDriver>
+    <WIFI_VERSION_MAJOR>1</WIFI_VERSION_MAJOR>
+    <WIFI_VERSION_MINOR>1</WIFI_VERSION_MINOR>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup>
+    <OutDir>$(MSBuildThisFileDirectory)..\build\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(MSBuildThisFileDirectory)..\build\$(Platform)\$(Configuration)\obj\</IntDir>
+    <EnableInf2cat>false</EnableInf2cat>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WppEnabled>false</WppEnabled>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions Condition="'$(RtwVersion)' != ''">RTW_VERSION_RAW=$(RtwVersion);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <!-- the WiFiCx TLV generator/parser headers (C++ front end only) -->
+      <AdditionalIncludeDirectories>$(DDK_INC_PATH)wlan\2.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <!-- the Linux side (rtw89 + compat + mac), built with clang by ..\buildhal.ps1; the WiFiCx TLV library
+           (C++); libcntpr for the __security_push/pop_cookie the TLV library references; ksecdd for the kernel's
+           CNG (crypto.c) -->
+      <AdditionalDependencies>$(MSBuildThisFileDirectory)..\build\$(Platform)\$(Configuration)\rtw89hal.lib;$(DDK_LIB_PATH)wlan\2.0\WificxTLVGenParse.lib;$(DDK_LIB_PATH)libcntpr.lib;$(DDK_LIB_PATH)ksecdd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <DriverSign>
+      <FileDigestAlgorithm>SHA256</FileDigestAlgorithm>
+    </DriverSign>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="crypto.c" />
+    <ClCompile Include="driver.c" />
+    <ClCompile Include="hw.c" />
+    <ClCompile Include="log.c" />
+    <ClCompile Include="diag.c" />
+    <ClCompile Include="os.c" />
+    <ClCompile Include="probe.c" />
+  </ItemGroup>
+  <!-- C++ (WiFiCx front end). No sized deallocation: with it, operator delete (void *, size_t) is a usual
+       deallocation function and the matching placement delete of ArrayOfElements' operator new (size_t, ULONG_PTR)
+       on 64-bit, which makes its array new ill-formed (C2956) -->
+  <ItemGroup>
+    <ClCompile Include="..\wificx\adapter.cpp">
+      <AdditionalOptions>/Zc:sizedDealloc- %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="..\wificx\alloc.cpp">
+      <AdditionalOptions>/Zc:sizedDealloc- %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="..\wificx\ap.cpp">
+      <AdditionalOptions>/Zc:sizedDealloc- %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="..\wificx\command.cpp">
+      <AdditionalOptions>/Zc:sizedDealloc- %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="..\wificx\connect.cpp">
+      <AdditionalOptions>/Zc:sizedDealloc- %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="..\wificx\device.cpp">
+      <AdditionalOptions>/Zc:sizedDealloc- %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="..\wificx\sae.cpp">
+      <AdditionalOptions>/Zc:sizedDealloc- %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="..\wificx\scan.cpp">
+      <AdditionalOptions>/Zc:sizedDealloc- %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="..\wificx\security.cpp">
+      <AdditionalOptions>/Zc:sizedDealloc- %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="..\wificx\wfd.cpp">
+      <AdditionalOptions>/Zc:sizedDealloc- %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="rtw89win.h" />
+    <ClInclude Include="rtw89win_ioctl.h" />
+    <ClInclude Include="..\wificx\wifi.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

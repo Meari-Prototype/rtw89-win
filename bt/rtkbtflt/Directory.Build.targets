@@ -1,0 +1,4 @@
+<!-- SPDX-License-Identifier: BSD-3-Clause; Copyright (c) 2026 Meari -->
+<Project>
+  <Import Project="$(RtwPkgDir)Microsoft.Windows.SDK.CPP.10.0.26100.1\build\native\Microsoft.Windows.SDK.cpp.targets" />
+</Project>

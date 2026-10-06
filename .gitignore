@@ -1,0 +1,14 @@
+# build output (build.ps1, buildhal.ps1, bt\*\build.ps1, tools-dev\*-test.ps1)
+/build/
+/out/
+# NuGet packages of packages.config (WDK, Windows SDK): restored locally, not distributed
+/packages/
+# local build settings (tools-dev\buildenv.ps1; see local.settings.example.psd1)
+/local.settings.psd1
+# firmware: not distributed with this repository (see firmware\SHA256SUMS)
+/firmware/*.bin
+/firmware/rtl_bt/*.bin
+# hosttools\rtw89win-thru.ps1 payloads
+/hosttools/*.bin
+*.user
+.vs/

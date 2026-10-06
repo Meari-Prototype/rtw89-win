@@ -1,0 +1,16 @@
+<!-- SPDX-License-Identifier: BSD-3-Clause; Copyright (c) 2026 Meari -->
+<Project>
+  <!-- WDK + Windows SDK from their NuGet packages (ids and versions: ..\packages.config). The packages directory is,
+       first found: the MSBuild property RtwPackagesDir (build.ps1 passes it), the environment variable
+       RTW89WIN_PACKAGES, else packages\ in the repository root. RtwPkgDir is that directory with a trailing \. -->
+  <PropertyGroup>
+    <RtwPkgDir>$(RtwPackagesDir)</RtwPkgDir>
+    <RtwPkgDir Condition="'$(RtwPkgDir)' == ''">$(RTW89WIN_PACKAGES)</RtwPkgDir>
+    <RtwPkgDir Condition="'$(RtwPkgDir)' == ''">$(MSBuildThisFileDirectory)..\packages\</RtwPkgDir>
+    <RtwPkgDir>$([MSBuild]::EnsureTrailingSlash('$(RtwPkgDir)'))</RtwPkgDir>
+  </PropertyGroup>
+  <Import Project="$(RtwPkgDir)Microsoft.Windows.SDK.CPP.10.0.26100.1\build\native\Microsoft.Windows.SDK.cpp.props" />
+  <Import Project="$(RtwPkgDir)Microsoft.Windows.SDK.CPP.x64.10.0.26100.1\build\native\Microsoft.Windows.SDK.cpp.x64.props" />
+  <Import Project="$(RtwPkgDir)Microsoft.Windows.SDK.CPP.arm64.10.0.26100.1\build\native\Microsoft.Windows.SDK.cpp.arm64.props" />
+  <Import Project="$(RtwPkgDir)Microsoft.Windows.WDK.ARM64.10.0.26100.6584\build\native\Microsoft.Windows.WDK.arm64.props" />
+</Project>

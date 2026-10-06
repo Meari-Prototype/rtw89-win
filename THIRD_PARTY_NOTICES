@@ -1,0 +1,117 @@
+rtw89win - third-party notices
+
+This project is licensed under the BSD 3-Clause License (see LICENSE),
+Copyright (c) 2026 Meari. It contains or uses the following third-party
+material. Each file named here keeps its own licence text or SPDX line.
+
+======================================================================
+A. rtw89 (Realtek 802.11ax/be WLAN driver, from Linux)
+   Location:  third_party/rtw89/   (49 files, not modified)
+   Source:    https://github.com/torvalds/linux.git, tag v7.2,
+              commit 8d3ae59288f1e7d58d76558a6ee96d533bc5019f,
+              path drivers/net/wireless/realtek/rtw89/
+   Licence:   every file is "SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause"
+              (dual licence). This project uses them under BSD-3-Clause.
+              Both licence texts are in third_party/rtw89/LICENSES/.
+   Copyright (c) 2019-2026 Realtek Corporation (see the header of each file).
+   driver/hw.c uses register offsets from rtw89's reg.h.
+   The file list with the git blob id of each file is in
+   third_party/rtw89/README.md.
+
+----------------------------------------------------------------------
+B. FreeBSD LinuxKPI 802.11 headers
+   Location:  compat/include/linux/ieee80211.h        (modified)
+              compat/include/linux/nl80211.h
+              compat/include/net/cfg80211.h
+              compat/include/net/ieee80211_radiotap.h
+              compat/include/net/mac80211.h           (modified)
+              compat/include/net/regulatory.h
+   Source:    https://github.com/freebsd/freebsd-src.git,
+              commit 262fa4695d90207b9080f2cc5cb01eccf07fe243 (compat/FREEBSD_REV),
+              path sys/compat/linuxkpi/common/include/
+   Licence:   BSD-2-Clause. The full text is at the top of each file.
+              Copyright (c) 2020-2026 The FreeBSD Foundation
+              Copyright (c) 2020-2026 Bjoern A. Zeeb
+              (the holders and years differ per file; see each file)
+              "This software was developed by Björn Zeeb under sponsorship
+              from the FreeBSD Foundation."
+   Changes:   each file has a comment after the licence block that names its
+              source. The changes in the two modified files are marked
+              "rtw89win"; they are Copyright (c) 2026 Meari, under the same
+              BSD-2-Clause terms.
+
+----------------------------------------------------------------------
+C. FreeBSD net80211 headers
+   Location:  compat/include/net80211/ieee80211.h           (not modified)
+              compat/include/net80211/ieee80211_radiotap.h  (not modified)
+   Source:    the same FreeBSD commit, path sys/net80211/
+   Licence:   ieee80211.h: BSD-2-Clause
+                Copyright (c) 2001 Atsushi Onoe
+                Copyright (c) 2002-2009 Sam Leffler, Errno Consulting
+                Copyright (c) 2020-2025 The FreeBSD Foundation
+              ieee80211_radiotap.h: BSD-3-Clause
+                Copyright (c) 2003, 2004 David Young
+                Copyright (c) 2021-2026 The FreeBSD Foundation
+              The full texts are at the top of each file.
+
+----------------------------------------------------------------------
+D. Regulatory data
+   1. wireless-regdb 2025.10.07 (regulatory.db, sha256
+      5560f4f0fdac7d1bb2adf8d4d083f39e3bee5ba55192feadadc091df55a813eb),
+      converted by tools-dev/regdb-gen.ps1 into mac/regdb.h.
+      Licence: ISC.
+        Copyright (c) 2008, Luis R. Rodriguez <mcgrof@gmail.com>
+        Copyright (c) 2008, Johannes Berg <johannes@sipsolutions.net>
+        Copyright (c) 2008, Michael Green <Michael.Green@Atheros.com>
+   2. The built-in world regulatory rules in mac/reg.c (reg_world_builtin)
+      are the 2.4/5 GHz rules of world_regdom in Linux net/wireless/reg.c,
+      v7.2.
+      Licence: ISC.
+        Copyright 2002-2005, Instant802 Networks, Inc.
+        Copyright 2005-2006, Devicescape Software, Inc.
+        Copyright 2007 Johannes Berg <johannes@sipsolutions.net>
+        Copyright 2008-2011 Luis R. Rodriguez <mcgrof@qca.qualcomm.com>
+        Copyright 2013-2014 Intel Mobile Communications GmbH
+        Copyright 2017 Intel Deutschland GmbH
+        Copyright (C) 2018 - 2026 Intel Corporation
+
+   ISC licence text (for D.1 and D.2):
+   Permission to use, copy, modify, and/or distribute this software for any
+   purpose with or without fee is hereby granted, provided that the above
+   copyright notice and this permission notice appear in all copies.
+
+   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+   WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+   MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+   SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+   WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
+   OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+----------------------------------------------------------------------
+E. References (read for behaviour and interfaces; no code copied)
+   - Linux mac80211 and cfg80211 (net/mac80211, net/wireless), the Linux
+     kernel headers, and btrtl (drivers/bluetooth/btrtl.c): the mac layer
+     (mac/), the Linux API layer (compat/) and the Bluetooth patch loader
+     (bt/) are new implementations. compat/ provides Linux kernel interfaces
+     (names, structure layouts, macro and function signatures) because the
+     unmodified rtw89 sources are compiled against them.
+     bt/rtkbtfw/epatch.c contains the project-id to LMP-subversion table and
+     the patch-file rules of btrtl.c as interoperability facts.
+   - Microsoft Windows-driver-samples (network/wlan/wificx, network/wlan/WDI,
+     network/netadaptercx; MS-PL): the WiFiCx front end (wificx/) follows the
+     structure of the WiFiCx sample. No sample code is included.
+   - Test vectors in driver/crypto.c: RFC 4493 (AES-CMAC) and
+     IEEE Std 802.11-2020 Annex J.6.4 (CCMP).
+
+----------------------------------------------------------------------
+F. Not included
+   - Firmware (rtw8852b_fw-2.bin, rtl8852bu_fw.bin, rtl8852bu_config.bin) is
+     not in this repository. It comes from linux-firmware; the tested SHA256
+     values are in firmware/SHA256SUMS and firmware/rtl_bt/SHA256SUMS.
+     Licence: firmware/LICENCE.rtlwifi_firmware.txt (Realtek). The build
+     scripts copy that licence into every package that contains firmware.
+   - Windows Driver Kit, Windows SDK, Visual Studio Build Tools, LLVM: not
+     distributed. Get them from their vendors (packages.config lists the
+     WDK and SDK NuGet packages). The driver links WDK libraries
+     (WificxTLVGenParse.lib, libcntpr.lib, ksecdd.lib, usbd.lib) at build time.
